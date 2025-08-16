@@ -1,21 +1,34 @@
-const VIEWED_MOVIES_KEY = 'viewedMovies';
+import { SESSION_KEY } from '../config';
+
+interface SessionData {
+  viewedMovies: string[];
+  featuredMovieId?: string;
+}
 
 export const saveViewedMovie = (movieId: string): void => {
   try {
     const viewed = getViewedMovies();
     const updatedViewed = [movieId, ...viewed.filter((id) => id !== movieId)];
-    localStorage.setItem(VIEWED_MOVIES_KEY, JSON.stringify(updatedViewed));
+
+    const existing = sessionStorage.getItem(SESSION_KEY);
+    const parsed: SessionData = existing
+      ? JSON.parse(existing)
+      : { viewedMovies: [] };
+    parsed.viewedMovies = updatedViewed;
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(parsed));
   } catch (error) {
-    console.warn('Failed to save viewed movie to local storage:', error);
+    console.warn('Failed to save viewed movie to session storage:', error);
   }
 };
 
 export const getViewedMovies = (): string[] => {
   try {
-    const stored = localStorage.getItem(VIEWED_MOVIES_KEY);
-    return stored ? JSON.parse(stored) : [];
+    const stored = sessionStorage.getItem(SESSION_KEY);
+    if (!stored) return [];
+    const parsed: SessionData = JSON.parse(stored);
+    return Array.isArray(parsed.viewedMovies) ? parsed.viewedMovies : [];
   } catch (error) {
-    console.warn('Failed to get viewed movies from local storage:', error);
+    console.warn('Failed to get viewed movies from session storage:', error);
     return [];
   }
 };

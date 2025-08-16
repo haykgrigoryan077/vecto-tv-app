@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { MovieContentItem } from '../../types';
+import { SESSION_KEY } from '../../pages/config';
 
 interface MovieStoreType {
   featuredMovie: MovieContentItem | null;
@@ -12,37 +13,67 @@ interface MovieStoreType {
   addViewedMovie: (movieId: string) => void;
 }
 
-const VIEWED_MOVIES_KEY = 'viewedMovies';
+interface SessionData {
+  viewedMovies: string[];
+  featuredMovieId?: string;
+}
 
 const MovieStoreContext = createContext<MovieStoreType | null>(null);
 
 export const MovieStoreProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [featuredMovie, setFeaturedMovie] = useState<MovieContentItem | null>(
+  const [featuredMovie, _setFeaturedMovie] = useState<MovieContentItem | null>(
     null
   );
   const [isVideoMode, setIsVideoMode] = useState(false);
   const [viewedMovies, setViewedMovies] = useState<string[]>([]);
+  const [hasHydrated, setHasHydrated] = useState(false);
 
   useEffect(() => {
     try {
-      const stored = sessionStorage.getItem(VIEWED_MOVIES_KEY);
+      const stored = sessionStorage.getItem(SESSION_KEY);
       if (stored) {
-        setViewedMovies(JSON.parse(stored));
+        const parsed: SessionData = JSON.parse(stored);
+        if (Array.isArray(parsed.viewedMovies)) {
+          setViewedMovies(parsed.viewedMovies);
+        }
+        if (parsed.featuredMovieId) {
+        }
       }
     } catch (error) {
-      console.warn('Failed to load viewed movies from session storage:', error);
+      console.warn('Failed to load from sessionStorage:', error);
+    } finally {
+      setHasHydrated(true);
     }
   }, []);
 
   useEffect(() => {
+    if (!hasHydrated) return;
+
     try {
-      sessionStorage.setItem(VIEWED_MOVIES_KEY, JSON.stringify(viewedMovies));
+      const stored = sessionStorage.getItem(SESSION_KEY);
+      const parsed: SessionData = stored ? JSON.parse(stored) : {};
+      parsed.viewedMovies = viewedMovies;
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(parsed));
     } catch (error) {
-      console.warn('Failed to save viewed movies to session storage:', error);
+      console.warn('Failed to update viewed movies in sessionStorage:', error);
     }
-  }, [viewedMovies]);
+  }, [viewedMovies, hasHydrated]);
+
+  const setFeaturedMovie = (movie: MovieContentItem) => {
+    _setFeaturedMovie(movie);
+    try {
+      const stored = sessionStorage.getItem(SESSION_KEY);
+      const parsed: SessionData = stored
+        ? JSON.parse(stored)
+        : { viewedMovies: [] };
+      parsed.featuredMovieId = movie.Id;
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(parsed));
+    } catch (error) {
+      console.warn('Failed to save featured movie to sessionStorage:', error);
+    }
+  };
 
   const addViewedMovie = (movieId: string) => {
     setViewedMovies((prev) => {
