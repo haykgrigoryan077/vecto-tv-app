@@ -1,36 +1,18 @@
+import { loadSessionData } from '../../utils/loadSessionData';
+import { saveSessionData } from '../../utils/saveSessionData';
 import { SESSION_KEY } from '../config';
 
-interface SessionData {
-  viewedMovies: string[];
-  featuredMovieId?: string;
-}
-
 export const saveViewedMovie = (movieId: string): void => {
-  try {
-    const viewed = getViewedMovies();
-    const updatedViewed = [movieId, ...viewed.filter((id) => id !== movieId)];
-
-    const existing = sessionStorage.getItem(SESSION_KEY);
-    const parsed: SessionData = existing
-      ? JSON.parse(existing)
-      : { viewedMovies: [] };
-    parsed.viewedMovies = updatedViewed;
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(parsed));
-  } catch (error) {
-    console.warn('Failed to save viewed movie to session storage:', error);
-  }
+  const session = loadSessionData(SESSION_KEY);
+  session.viewedMovies = [
+    movieId,
+    ...(session.viewedMovies || []).filter((id) => id !== movieId),
+  ];
+  saveSessionData(session, SESSION_KEY);
 };
 
 export const getViewedMovies = (): string[] => {
-  try {
-    const stored = sessionStorage.getItem(SESSION_KEY);
-    if (!stored) return [];
-    const parsed: SessionData = JSON.parse(stored);
-    return Array.isArray(parsed.viewedMovies) ? parsed.viewedMovies : [];
-  } catch (error) {
-    console.warn('Failed to get viewed movies from session storage:', error);
-    return [];
-  }
+  return loadSessionData(SESSION_KEY).viewedMovies || [];
 };
 
 export const sortByViewedMovies = <T extends { Id: string }>(

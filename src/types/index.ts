@@ -11,3 +11,8 @@ export interface MovieContentItem {
   VideoUrl?: string;
   Description: string;
 }
+
+export interface SessionData {
+  viewedMovies: string[];
+  featuredMovieId?: string;
+}
