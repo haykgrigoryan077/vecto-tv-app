@@ -111,11 +111,13 @@ const Featured: React.FC = () => {
         <span className={styles.category}>{Category?.toUpperCase()}</span>
 
         {TitleImage ? (
-          <img
-            src={`/assets/${TitleImage}`}
-            alt={Title}
-            className={styles['title-image']}
-          />
+          <div className={styles['title-image-wrapper']}>
+            <img
+              src={`/assets/${TitleImage}`}
+              alt={Title}
+              className={styles['title-image']}
+            />
+          </div>
         ) : (
           <h1 className={styles['title-fallback']}>{Title}</h1>
         )}

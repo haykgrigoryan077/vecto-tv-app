@@ -71,10 +71,21 @@
   color: rgb(152, 149, 149);
 }
 
+.title-image-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+}
+
 .title-image {
-  max-width: 560px;
+  max-width: 100%;
   height: auto;
-  margin: 4px 0 2px;
+  display: block;
+
+  @media (max-width: 768px) {
+    width: 80%;
+  }
+
 }
 
 .title-fallback {
