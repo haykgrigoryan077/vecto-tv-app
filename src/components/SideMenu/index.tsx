@@ -43,7 +43,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ onExpandedChange }) => {
       <header className={styles['profile']}>
         <img
           className={styles['profile-avatar']}
-          src="/assets/icons/avatar.png"
+          src="/assets/avatar.png"
           alt=""
         />
         <span className={styles['profile-name']}>Daniel</span>

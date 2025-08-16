@@ -100,7 +100,10 @@ $navy: #2f3d73;
   gap: 12px;
 }
 
-.footer-item { opacity: 0.85; }
+.footer-item { 
+  opacity: 0.85;
+  cursor: pointer;
+}
 
 .footer-text {
   font-size: 16px;
