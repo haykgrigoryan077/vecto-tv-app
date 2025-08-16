@@ -1,5 +1,10 @@
-import AppShell from './app/AppShell';
+import AppRouter from './app/AppRouter';
+import { MovieStoreProvider } from './context/MovieContext';
 
 export default function App() {
-  return <AppShell></AppShell>;
+  return (
+    <MovieStoreProvider>
+      <AppRouter />
+    </MovieStoreProvider>
+  );
 }

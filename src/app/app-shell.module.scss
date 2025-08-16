@@ -1,12 +1,17 @@
 @use '../styles/tokens' as *;
 
 .app-grid {
-  display: grid;
-  grid-template-columns: auto 1fr;
+  display: block;
   min-height: 100vh;
+  position: relative;
 }
-
 
 .app-main {
   padding: var(--space-6);
+  margin-left: 72px;
+  transition: opacity 220ms ease;
+}
+
+.app-main-overlay {
+  opacity: 0.3;
 }

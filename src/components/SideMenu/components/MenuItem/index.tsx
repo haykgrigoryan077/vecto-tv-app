@@ -10,6 +10,7 @@ export interface MenuItemProps {
   active?: boolean;
   expanded?: boolean;
   className?: string;
+  onClick?: () => void;
 }
 
 const MenuItem: React.FC<MenuItemProps> = ({
@@ -18,6 +19,7 @@ const MenuItem: React.FC<MenuItemProps> = ({
   active,
   expanded,
   className,
+  onClick,
 }) => {
   return (
     <button
@@ -29,6 +31,7 @@ const MenuItem: React.FC<MenuItemProps> = ({
         className
       )}
       aria-current={active ? 'page' : undefined}
+      onClick={onClick}
     >
       <span
         className={cn(

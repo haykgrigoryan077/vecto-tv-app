@@ -1,21 +1,44 @@
+/* eslint-disable no-unused-vars */
 import React from 'react';
 
 import cn from 'classnames';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import MenuItem from './components/MenuItem';
 import { FOOTER, NAV_ITEMS } from './config';
 import styles from './SideMenu.module.scss';
 
-const SideMenu: React.FC = () => {
+interface SideMenuProps {
+  onExpandedChange: (expanded: boolean) => void;
+}
+
+const SideMenu: React.FC<SideMenuProps> = ({ onExpandedChange }) => {
   const [expanded, setExpanded] = React.useState(false);
-  const activeKey = 'home';
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleMouseEnter = () => {
+    setExpanded(true);
+    onExpandedChange(true);
+  };
+
+  const handleMouseLeave = () => {
+    setExpanded(false);
+    onExpandedChange(false);
+  };
+
+  const handleItemClick = (path?: string) => {
+    if (path) {
+      navigate(path);
+    }
+  };
 
   return (
     <nav
       className={cn(styles['side-menu'], expanded && styles['is-expanded'])}
       aria-label="Main navigation"
-      onMouseEnter={() => setExpanded(true)}
-      onMouseLeave={() => setExpanded(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <header className={styles['profile']}>
         <img
@@ -27,13 +50,14 @@ const SideMenu: React.FC = () => {
       </header>
 
       <ul className={styles['nav']} role="menu">
-        {NAV_ITEMS.map(({ key, icon, label }) => (
+        {NAV_ITEMS.map(({ key, icon, label, path }) => (
           <li key={key} role="none">
             <MenuItem
               icon={icon}
               label={label}
-              active={key === activeKey}
+              active={path ? location.pathname === path : false}
               expanded={expanded}
+              onClick={() => handleItemClick(path)}
               className={styles['nav-item']}
             />
           </li>

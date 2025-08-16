@@ -18,12 +18,18 @@ $navy: #2f3d73;
   color: #fff;
 
   background: var(--bg);
-  transition: width 220ms ease, background 220ms ease;
+  transition: width 220ms ease;
+  
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  pointer-events: auto;
 }
 
 .is-expanded {
   width: $rail-expanded;
-  background: linear-gradient(180deg, rgba(0,0,0,0.45), rgba(0,0,0,0.85));
+  background: var(--bg); 
 }
 
 .profile {

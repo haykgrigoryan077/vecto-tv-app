@@ -1,16 +1,27 @@
+import { useState } from 'react';
+
 import cn from 'classnames';
-import type { PropsWithChildren } from 'react';
+import { Outlet } from 'react-router-dom';
 
 import SideMenu from '../components/SideMenu';
 import styles from './app-shell.module.scss';
 
 import '../styles/base.scss';
 
-export default function AppShell({ children }: PropsWithChildren) {
+export default function AppShell() {
+  const [sideMenuExpanded, setSideMenuExpanded] = useState(false);
+
   return (
     <div className={cn(styles['app-grid'])}>
-      <SideMenu />
-      <main className={cn(styles['app-main'])}>{children}</main>
+      <main
+        className={cn(
+          styles['app-main'],
+          sideMenuExpanded && styles['app-main-overlay']
+        )}
+      >
+        <Outlet />
+      </main>
+      <SideMenu onExpandedChange={setSideMenuExpanded} />
     </div>
   );
 }
