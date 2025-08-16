@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useCallback, useMemo } from 'react';
 import type { MovieContentItem } from '../../../../types';
 import styles from './TrendingCarousel.module.scss';
 
@@ -12,31 +12,46 @@ const TrendingCarousel: React.FC<TrendingCarouselProps> = ({
   onItemClick,
 }) => {
   const carouselRef = useRef<HTMLDivElement>(null);
-  const isDownRef = useRef(false);
-  const startXRef = useRef(0);
-  const scrollLeftRef = useRef(0);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const initialScroll = useRef(0);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    isDownRef.current = true;
-    startXRef.current = e.pageX - (carouselRef.current?.offsetLeft || 0);
-    scrollLeftRef.current = carouselRef.current?.scrollLeft || 0;
-  };
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    isDragging.current = true;
+    startX.current = e.pageX - (carouselRef.current?.offsetLeft || 0);
+    initialScroll.current = carouselRef.current?.scrollLeft || 0;
+  }, []);
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDownRef.current || !carouselRef.current) return;
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging.current || !carouselRef.current) return;
     e.preventDefault();
     const x = e.pageX - carouselRef.current.offsetLeft;
-    const walk = (x - startXRef.current) * 1.5;
-    carouselRef.current.scrollLeft = scrollLeftRef.current - walk;
-  };
+    const walk = (x - startX.current) * 1.5;
+    carouselRef.current.scrollLeft = initialScroll.current - walk;
+  }, []);
 
-  const handleMouseUp = () => {
-    isDownRef.current = false;
-  };
+  const stopDragging = useCallback(() => {
+    isDragging.current = false;
+  }, []);
 
-  const handleMouseLeave = () => {
-    isDownRef.current = false;
-  };
+  const renderedItems = useMemo(
+    () =>
+      items.map((item) => (
+        <div
+          key={item.Id}
+          className={styles.carouselItem}
+          onClick={() => onItemClick(item)}
+        >
+          <img
+            src={`/assets/${item.CoverImage}`}
+            alt={item.Title}
+            className={styles.coverImage}
+            draggable={false}
+          />
+        </div>
+      )),
+    [items, onItemClick]
+  );
 
   return (
     <section className={styles.section}>
@@ -47,22 +62,10 @@ const TrendingCarousel: React.FC<TrendingCarouselProps> = ({
         ref={carouselRef}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
+        onMouseUp={stopDragging}
+        onMouseLeave={stopDragging}
       >
-        {items.map((item) => (
-          <div
-            key={item.Id}
-            className={styles.carouselItem}
-            onClick={() => onItemClick(item)}
-          >
-            <img
-              src={`/assets/${item.CoverImage}`}
-              alt={item.Title}
-              className={styles.coverImage}
-            />
-          </div>
-        ))}
+        {renderedItems}
       </div>
     </section>
   );

@@ -1,10 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from 'react';
 import cn from 'classnames';
 import styles from './Featured.module.scss';
 import { useMovieStore } from '../../../../context/MovieContext';
 import Loader from '../../../../components/Loader';
 
-const secondsToHm = (total: string) => {
+const formatDuration = (total: string) => {
   const totalSeconds = parseInt(total);
   const h = Math.floor(totalSeconds / 3600);
   const m = Math.round((totalSeconds % 3600) / 60);
@@ -26,25 +32,7 @@ const Featured: React.FC = () => {
     setVideoKey(featuredMovie?.VideoUrl || '');
   }, [featuredMovie]);
 
-  if (!featuredMovie) {
-    return <Loader />;
-  }
-
-  const {
-    CoverImage,
-    VideoUrl,
-    TitleImage,
-    Title,
-    Description,
-    Category,
-    ReleaseYear,
-    MpaRating,
-    Duration,
-  } = featuredMovie;
-
-  const shouldTryVideo = isVideoMode && VideoUrl && !videoError && isVideoReady;
-
-  const handlePlayToggle = () => {
+  const handlePlayToggle = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
 
@@ -55,7 +43,37 @@ const Featured: React.FC = () => {
       video.pause();
       setIsPaused(true);
     }
-  };
+  }, []);
+
+  const handleVideoError = useCallback(() => {
+    setVideoError(true);
+    setIsVideoReady(false);
+  }, []);
+
+  const shouldTryVideo = useMemo(() => {
+    return (
+      isVideoMode && featuredMovie?.VideoUrl && !videoError && isVideoReady
+    );
+  }, [isVideoMode, featuredMovie?.VideoUrl, videoError, isVideoReady]);
+
+  const formattedDuration = useMemo(() => {
+    return featuredMovie?.Duration
+      ? formatDuration(featuredMovie.Duration)
+      : '';
+  }, [featuredMovie?.Duration]);
+
+  if (!featuredMovie) return <Loader />;
+
+  const {
+    CoverImage,
+    VideoUrl,
+    TitleImage,
+    Title,
+    Description,
+    Category,
+    ReleaseYear,
+    MpaRating,
+  } = featuredMovie;
 
   return (
     <section className={styles.featured}>
@@ -76,16 +94,13 @@ const Featured: React.FC = () => {
             loop
             controls={false}
             onCanPlay={() => setIsVideoReady(true)}
-            onError={() => {
-              setVideoError(true);
-              setIsVideoReady(false);
-            }}
+            onError={handleVideoError}
+            onPlay={() => setIsPaused(false)}
+            onPause={() => setIsPaused(true)}
             className={cn(styles['featured-video'], {
               [styles['video-hidden']]: !isVideoReady,
             })}
             style={{ pointerEvents: 'none' }}
-            onPlay={() => setIsPaused(false)}
-            onPause={() => setIsPaused(true)}
           />
         )}
 
@@ -108,7 +123,7 @@ const Featured: React.FC = () => {
         <div className={styles['meta-row']}>
           <span>{ReleaseYear}</span>
           <span>{MpaRating}</span>
-          <span>{secondsToHm(Duration)}</span>
+          <span>{formattedDuration}</span>
         </div>
 
         <p className={styles.description}>{Description}</p>

@@ -1,6 +1,4 @@
-/* eslint-disable no-unused-vars */
-import React from 'react';
-
+import React, { useMemo, useState, useCallback } from 'react';
 import cn from 'classnames';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -13,25 +11,41 @@ interface SideMenuProps {
 }
 
 const SideMenu: React.FC<SideMenuProps> = ({ onExpandedChange }) => {
-  const [expanded, setExpanded] = React.useState(false);
+  const [expanded, setExpanded] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleMouseEnter = () => {
+  const handleMouseEnter = useCallback(() => {
     setExpanded(true);
     onExpandedChange(true);
-  };
+  }, [onExpandedChange]);
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     setExpanded(false);
     onExpandedChange(false);
-  };
+  }, [onExpandedChange]);
 
-  const handleItemClick = (path?: string) => {
-    if (path) {
-      navigate(path);
-    }
-  };
+  const handleItemClick = useCallback(
+    (path?: string) => {
+      if (path) navigate(path);
+    },
+    [navigate]
+  );
+
+  const activePaths = useMemo(() => {
+    const currentPath = location.pathname;
+    return NAV_ITEMS.reduce<Record<string, boolean>>((acc, { key, path }) => {
+      if (!path) return acc;
+      const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+
+      acc[key] =
+        normalizedPath === '/'
+          ? currentPath === '/'
+          : currentPath.startsWith(normalizedPath);
+
+      return acc;
+    }, {});
+  }, [location.pathname]);
 
   return (
     <nav
@@ -44,24 +58,28 @@ const SideMenu: React.FC<SideMenuProps> = ({ onExpandedChange }) => {
         <img
           className={styles['profile-avatar']}
           src="/assets/avatar.png"
-          alt=""
+          alt="Avatar"
         />
         <span className={styles['profile-name']}>Daniel</span>
       </header>
 
       <ul className={styles['nav']} role="menu">
-        {NAV_ITEMS.map(({ key, icon, label, path }) => (
-          <li key={key} role="none">
-            <MenuItem
-              icon={icon}
-              label={label}
-              active={path ? location.pathname === path : false}
-              expanded={expanded}
-              onClick={() => handleItemClick(path)}
-              className={styles['nav-item']}
-            />
-          </li>
-        ))}
+        {NAV_ITEMS.map(({ key, icon, label, path }) => {
+          const onClick = () => handleItemClick(path);
+
+          return (
+            <li key={key} role="none">
+              <MenuItem
+                icon={icon}
+                label={label}
+                active={!!activePaths[key]}
+                expanded={expanded}
+                onClick={onClick}
+                className={styles['nav-item']}
+              />
+            </li>
+          );
+        })}
       </ul>
 
       <footer className={styles['footer']}>
