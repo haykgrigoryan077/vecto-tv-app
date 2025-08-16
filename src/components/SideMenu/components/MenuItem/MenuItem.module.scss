@@ -1,0 +1,53 @@
+$blue: #2e3cff;
+$navy: #2f3d73;
+$pill-radius: 18px;
+
+.menu-item {
+  width: 100%;
+  height: 100%;      
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  align-items: center;
+  column-gap: 12px;
+
+  padding: 0 10px;
+  border-radius: $pill-radius;
+  transition: background 160ms ease;
+}
+
+.is-expanded:not(.is-active):hover { background: rgba(255,255,255,0.07); }
+
+.icon-wrap {
+  width: 36px; height: 36px;
+  border-radius: 12px;
+  display: grid; place-items: center; justify-self: center;
+  background: transparent;
+  transition: background 160ms ease;
+}
+
+.icon-wrap--active { background: $blue; }
+
+.icon { width: 20px; height: 20px; object-fit: contain; opacity: .95; }
+
+.label {
+  font-size: 22px; font-weight: 800; white-space: nowrap;
+  opacity: 0; transform: translateX(-6px);
+  transition: all 160ms ease;
+}
+.is-expanded .label { opacity: 1; transform: none; }
+
+.is-expanded.is-active {
+  background: $navy;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.15), 0 8px 24px rgba(0,0,0,0.25);
+}
+
+.menu-item:focus-visible {
+  outline: 2px solid rgba(255,255,255,0.6);
+  outline-offset: 2px;
+}

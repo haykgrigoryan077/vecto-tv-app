@@ -1,11 +1,12 @@
 @use '../styles/tokens' as *;
 
-.appGrid {
+.app-grid {
   display: grid;
-  grid-template-columns: 72px 1fr;
-  min-height: 100%;
+  grid-template-columns: auto 1fr;
+  min-height: 100vh;
 }
 
-.appMain {
+
+.app-main {
   padding: var(--space-6);
 }
